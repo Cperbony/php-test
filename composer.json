@@ -8,7 +8,7 @@
         }
     },
     "scripts": {
-        "test": "bin/phpunit --testdox"
+        "test": "bin/phpunit --testdox --colors=always "
     },
     "config": {
         "bin-dir": "bin/"
