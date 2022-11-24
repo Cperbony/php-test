@@ -1,0 +1,16 @@
+{
+    "require": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Code\\": "src/"
+        }
+    },
+    "scripts": {
+        "test": "bin/phpunit --testdox"
+    },
+    "config": {
+        "bin-dir": "bin/"
+    }
+}
