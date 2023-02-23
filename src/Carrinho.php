@@ -2,13 +2,19 @@
 
 namespace Code;
 
+use Code\Log;
+
 class Carrinho
 {
     private $produtos = [];
 
-    public function addProduto(Produto $produto)
+    public function addProduto(Produto $produto, Log $log = null)
     {
         $this->produtos[] = $produto;
+        if (!is_null($log)) {
+
+            $log->log('Adicionando produtos no carrinho') ?? null;
+        }
     }
 
     public function getProdutos()

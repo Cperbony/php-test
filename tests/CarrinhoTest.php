@@ -6,6 +6,36 @@ use PHPUnit\Framework\TestCase;
 
 class CarrinhoTest extends TestCase
 {
+    private $carrinho;
+    private $produto;
+
+    protected function setUp(): void
+    {
+        $this->carrinho = new Carrinho();
+        $this->produto  = new Produto();
+
+        parent::setUp();
+    }
+
+    protected function tearDown(): void
+    {
+        unset($this->carrinho);
+        unset($this->produto);
+    }
+
+    protected function assertPreConditions(): void
+    {
+        $classe = class_exists('\\Code\\Carrinho');
+
+        $this->assertTrue($classe);
+    }
+
+    protected function assertPostConditions(): void
+    {
+        // Executada sempre depois do teste e o método Tears Down
+    }
+
+
     public function testSeClasseCarrinhoExiste()
     {
         $class = class_exists('\\Code\\Carrinho');
@@ -15,22 +45,22 @@ class CarrinhoTest extends TestCase
 
     public function testAdicaoDeProdutosNoCarrinho()
     {
-        $produto = new Produto();
+        $produto = $this->produto;
         $produto->setName('Bolacha');
         $produto->setPrice('20.00');
         $produto->setSlug('bolacha-1');
 
-        $produto2 = new Produto();
+        $produto2 = $this->produto;
         $produto2->setName('Bolacha2');
         $produto2->setPrice('244.00');
         $produto2->setSlug('bolacha-3');
 
-        $produto3 = new Produto();
-        $produto3->setName('Bolacha2');
+        $produto3 = $this->produto;
+        $produto3->setName('Bolacha3');
         $produto3->setPrice('244.00');
         $produto3->setSlug('bolacha-3');
 
-        $carrinho = new Carrinho();
+        $carrinho = $this->carrinho;
         $carrinho->addProduto($produto);
         $carrinho->addProduto($produto2);
         $carrinho->addProduto($produto3);
@@ -43,12 +73,12 @@ class CarrinhoTest extends TestCase
 
     public function testSeValoresDeProdutosNoCarrinhoEstaoCorretos()
     {
-        $produto = new Produto();
+        $produto = $this->produto;
         $produto->setName('Bolacha');
         $produto->setPrice('20.00');
         $produto->setSlug('bolacha-1');
 
-        $carrinho = new Carrinho();
+        $carrinho = $this->carrinho;
         $carrinho->addProduto($produto);
 
         $this->assertEquals('Bolacha', $carrinho->getProdutos()[0]->getName());
@@ -59,21 +89,55 @@ class CarrinhoTest extends TestCase
 
     public function testSeTotalDeProdutosEVAloresDaCompraEstaoCorretos()
     {
-        $produto = new Produto();
+        $produtoStub = $this->getStubProduto();
+
+        $carrinho = $this->carrinho;
+        $carrinho->addProduto($produtoStub);
+
+        $produto = $this->produto;
         $produto->setName('Bolacha');
         $produto->setPrice('20.00');
         $produto->setSlug('bolacha-1');
 
-        $produto2 = new Produto();
+        $produto2 = $this->produto;
         $produto2->setName('Bolacha2');
         $produto2->setPrice('244.00');
-        $produto2->setSlug('bolacha-3');
+        $produto2->setSlug('bolacha-2');
 
-        $carrinho = new Carrinho();
+        $carrinho = $this->carrinho;
         $carrinho->addProduto($produto);
         $carrinho->addProduto($produto2);
 
+        // var_dump($carrinho);
+
         $this->assertEquals(2, $carrinho->getTotalProdutos());
-        $this->assertEquals(264.00, $carrinho->getTotalCompra());
+        $this->assertEquals(507.99, $carrinho->getTotalCompra());
+    }
+
+    public function test_se_log_e_salvo_quando_informado_para_adicao_de_produtos()
+    {
+        $carrinho = $this->carrinho;
+
+        $logMock = $this->getMockBuilder(Log::class)
+            ->setMethods(['log'])
+            ->getMock();
+
+        $logMock->expects($this->once())
+            ->method('log')
+            ->with($this->equalTo('Adicionando produtos no carrinho'));
+
+        $carrinho->addProduto($this->getStubProduto(), $logMock);
+
+    }
+
+
+    private function getStubProduto()
+    {
+        $produtoStub = $this->createMock(Produto::class);
+        $produtoStub->method('getName')->willReturn('Produto1');
+        $produtoStub->method('getPrice')->willReturn(19.99);
+        $produtoStub->method('getSlug')->willReturn('produto-1');
+
+        return $produtoStub;
     }
 }
